@@ -4,5 +4,10 @@
     },
     "feichangzhun": {
         "api": "http://localhost:7100"
+    },
+    "cacheConfig": {
+        "port": 6379,
+        "host": "localhost",
+        "options": {}
     }
 }
