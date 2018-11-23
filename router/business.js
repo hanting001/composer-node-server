@@ -35,15 +35,13 @@ module.exports = (server) => {
     });
     server.get('/product/flightDelay/join/:NO/:Date', async (req, res, next) => {
         try {
-            const networkConnetion = bs.getNetworkConnection();
-            const networkDefinition = bs.getNetworkDefinition();
-            const serializer = networkDefinition.getSerializer();
+            const serializer = bs.getSerializer();
             const resource = serializer.fromJSON({
                 '$class': 'org.huibao.product.flightDelay.transaction.JoinTx',
                 'user': 'uid',
                 'flightInfo': 'fid'
             });
-            const contract = await networkConnetion.submitTransaction(resource);
+            const contract = await bs.submitTransaction(resource);
             res.send({
                 output: contract
             });

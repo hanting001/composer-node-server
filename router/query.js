@@ -6,8 +6,7 @@ module.exports = (server) => {
     // server.get('/balanceOf/:account', auth.jwt, auth.manager, async (req, res, next) => {
     server.get('/product/:pid', async (req, res, next) => {
         try {
-            const networkConnetion = bs.getNetworkConnection();
-            const productRegistry = await networkConnetion.getAssetRegistry('org.huibao.product.flightDelay.asset.FlightDelayProduct');
+            const productRegistry = await bs.getAssetRegistry('org.huibao.product.flightDelay.asset.FlightDelayProduct');
             const exists = await productRegistry.exists(req.params.pid);
             if (!exists) {
                 res.send({
@@ -27,14 +26,12 @@ module.exports = (server) => {
 
     server.get('/product/:pid/price/:flightNO/:flightDate', async (req, res, next) => {
         try {
-            const networkConnetion = bs.getNetworkConnection();
-            const networkDefinition = bs.getNetworkDefinition();
-            const serializer = networkDefinition.getSerializer();
+            const serializer = bs.getSerializer();
             const resource = serializer.fromJSON({
                 '$class': 'org.huibao.product.flightDelay.transaction.GetPriceTx',
                 'pid': req.params.pid
             });
-            const price = await networkConnetion.submitTransaction(resource);
+            const price = await bs.submitTransaction(resource);
             res.send({
                 output: price
             });

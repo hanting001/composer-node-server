@@ -7,17 +7,14 @@ module.exports = (server) => {
     server.post('/product', async (req, res, next) => {
         try {
             const input = req.body.input;
-            const networkConnetion = bs.getNetworkConnection();
-            const networkDefinition = bs.getNetworkDefinition();
-            const productRegistry = await networkConnetion.getAssetRegistry('org.huibao.product.flightDelay.asset.FlightDelayProduct')
-            const factory = networkDefinition.getFactory();
-            const product = factory.newResource('org.huibao.product.flightDelay.asset', 'FlightDelayProduct', input.pid);
+            const product = bs.newResource('org.huibao.product.flightDelay.asset', 'FlightDelayProduct', input.pid);
             product.premium = input.premium * 100;
             product.name = input.name;
             product.description = input.description;
             product.status = input.status;
             product.type = input.type;
-            await productRegistry.add(product);
+            await bs.addAsset('org.huibao.product.flightDelay.asset.FlightDelayProduct', product);
+            const productRegistry = await bs.getAssetRegistry('org.huibao.product.flightDelay.asset.FlightDelayProduct');
             const result = await productRegistry.get(input.pid);
             res.send({
                 output: result
