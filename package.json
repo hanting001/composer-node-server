@@ -12,6 +12,7 @@
     "@huibao/cachehelper": "git+https://code.99bx.cn/huibaotech/modules/cache-helper.git",
     "composer-client": "^0.19.18",
     "express-jwt": "^5.3.1",
+    "request-promise": "^4.2.2",
     "restify": "^7.2.3",
     "restify-cors-middleware": "^1.1.1"
   }
