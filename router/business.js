@@ -6,6 +6,7 @@ const auth = require('../lib/auth');
 module.exports = (server) => {
     // server.get('/balanceOf/:account', auth.jwt, auth.manager, async (req, res, next) => {
     server.get('/network/user/register', auth.jwt, async (req, res, next) => {
+        console.log(req.user);
         res.send({
             output: 'ok'
         });
