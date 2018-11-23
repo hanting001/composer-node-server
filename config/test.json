@@ -1,6 +1,6 @@
 {
     "businessNetwork": {
-        "cardName": "admin@huibao-huawei-network"
+        "cardName": "admin@huibao-network-1"
     },
     "feichangzhun": {
         "api": "http://localhost:7100"
