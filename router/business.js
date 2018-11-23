@@ -35,7 +35,7 @@ module.exports = (server) => {
             next(new errors.InternalServerError(err));
         }
     });
-    server.get('/product/join/:pid/:NO/:date',  async (req, res, next) => {
+    server.get('/product/join/:pid/:NO/:date', auth.jwt, async (req, res, next) => {
         try {
             // check flight
             const feichangzhun = config.get('feichangzhun.api');
@@ -49,7 +49,7 @@ module.exports = (server) => {
             const flightInfo = result.output;
             // check user
             const userRegistry = await bs.getParticipantRegistry('org.huibao.participant.User');
-            const user = await userRegistry.get('hanting');
+            const user = await userRegistry.get(req.user.name);
             //no exeption
             const tx = bs.newTransaction('org.huibao.product.flightDelay.transaction', 'JoinTx');
             tx.pid = req.params.pid;
@@ -64,4 +64,43 @@ module.exports = (server) => {
             next(new errors.InternalServerError(err));
         }
     });
+    server.get('/product/claim/:cid', auth.jwt, async (req, res, next) => {
+        try {
+            const uid = req.user.name;
+            const registry = await bs.getAssetRegistry('org.huibao.product.flightDelay.asset.FlightDelayContract');
+            const contract = await registry.get(req.params.cid);
+            // check user
+            const userRegistry = await bs.getParticipantRegistry('org.huibao.participant.User');
+            // check user`s contract
+            const user = await userRegistry.get(uid);
+            if (contract.insured.getIdentifier() != user.getIdentifier()) {
+                throw `非当前用户下合约`
+            }
+            // check flight
+            const feichangzhun = config.get('feichangzhun.api');
+            const url = feichangzhun + `/flight/checkDelay/${contract.flightInfo.flightNO}/${contract.flightInfo.flightDate}`;
+            const options = {
+                url: url,
+                json: true
+            }
+            const result = await request(options);
+            const flightInfo = result.output;
+            if (!flightInfo.isDelay) {
+                throw `合约下航班未发生延误`
+            }
+            //no exeption, start claim
+            const tx = bs.newTransaction('org.huibao.product.flightDelay.transaction', 'JoinTx');
+            tx.pid = req.params.pid;
+            tx.user = bs.newRelationship('org.huibao.participant', 'User', user.uid);
+            tx.flightInfo = bs.newRelationship('org.huibao.product.flightDelay.asset', 'FlightInfo', flightInfo.fid);
+            const contract = await bs.submitTransaction(tx);
+            res.send({
+                output: contract
+            });
+            next();
+        } catch (err) {
+            next(new errors.InternalServerError(err));
+        }
+    });
+
 }
